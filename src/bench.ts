@@ -83,9 +83,25 @@ export class Bench<D> {
   }
 
   /** Run the verifier over the current draft. The report is appended to
-   * history with exactly what was applied to produce it. */
+   * history with exactly what was applied to produce it. A verifier that
+   * throws is contained: the widget exists to invite hostile drafts, so a
+   * crash becomes a stop checkpoint, never a dead page. */
   run(): RunEntry<D> {
-    const report = this.config.verify(this.cloneOf(this.current));
+    let report: Report;
+    try {
+      report = this.config.verify(this.cloneOf(this.current));
+    } catch (err) {
+      report = {
+        checkpoints: [
+          {
+            label: 'verifier',
+            status: 'stop',
+            detail: `the verifier threw instead of reporting: ${err instanceof Error ? err.message : err}`
+          }
+        ],
+        outcome: 'verifier error: this draft found a crash, which is a finding too'
+      };
+    }
     const entry: RunEntry<D> = {
       applied: [...this.applied],
       draft: this.cloneOf(this.current),

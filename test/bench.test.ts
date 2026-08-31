@@ -96,3 +96,18 @@ test('duplicate tamper ids are refused at construction', () => {
 test('an unknown tamper id throws rather than silently no-opping', () => {
   assert.throws(() => new Bench(config).tamper('ghost'), /no tamper "ghost"/);
 });
+
+test('a throwing verifier is contained as a stop checkpoint, and the run is recorded', () => {
+  const hostile = new Bench<Draft>({
+    baseline: { scope: 'acct-1', count: 7 },
+    verify: () => {
+      throw new Error('verifier crashed on this draft');
+    },
+    tampers: config.tampers
+  });
+  const entry = hostile.tamper('widen').run();
+  assert.equal(entry.report.checkpoints[0].status, 'stop');
+  assert.match(entry.report.checkpoints[0].detail!, /crashed on this draft/);
+  assert.match(entry.report.outcome, /a finding too/);
+  assert.equal(hostile.history.length, 1);
+});

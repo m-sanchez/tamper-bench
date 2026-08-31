@@ -2,8 +2,9 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-erasable_syntax-3178C6?logo=typescript&logoColor=white)
 ![Browser](https://img.shields.io/badge/browser-framework_free-6E6E6E)
-![Dependencies](https://img.shields.io/badge/dependencies-0-B45309)
-![Tests](https://img.shields.io/badge/tests-12_passing-2F6F44)
+![Node](https://img.shields.io/badge/node-%3E%3D22.18-5FA04E?logo=nodedotjs&logoColor=white)
+![Dependencies](https://img.shields.io/badge/runtime_dependencies-0-B45309)
+[![CI](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
 
 Try to trick it: an embeddable guardrail playground. Visitors mutate a
@@ -55,20 +56,32 @@ directly; any deterministic function of the draft does.
 - **The host page owns the look.** Class hooks only (`tb-root`,
   `tb-chip`, `tb-checkpoint`, `tb-pass/warn/stop`, ...); no styles are
   injected.
-- **Unparseable hand edits refuse to run** with a message, never a crash;
-  a broken draft is a visitor finding, not a page failure.
+- **Unparseable hand edits refuse to run** with a message, never a crash,
+  and **a throwing verifier is contained** as a stop checkpoint: the widget
+  invites hostile drafts, so a crash is a finding, not a dead page.
+- **Buttons are type="button"** and the widget carries aria labels, so it
+  embeds inside a host form without submitting it.
 
-## Run
+## Install
 
 ```bash
-npm install       # dev-only: typescript + happy-dom for the mount tests
+npm install github:m-sanchez/tamper-bench#v1.1.0
+```
+
+Not yet on npm; the pinned git tag is the supported install and CI proves
+the packed tarball imports cleanly. The install builds plain ESM into
+`dist/`, so any bundler (or a `<script type="module">` after copying
+`dist/`) can serve it; zero runtime dependencies.
+
+## Develop
+
+```bash
+npm ci            # dev-only: typescript + happy-dom for the mount tests
 npm test
 npm run typecheck
 ```
 
-Node 22.6+ for the tests (erasable-syntax TypeScript). In the browser,
-bundle `src/` with anything that speaks TS (esbuild, vite); zero runtime
-dependencies.
+Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 
 ## The tests are the point
 
@@ -80,3 +93,6 @@ dependencies.
 | hand edits are recorded as hand edits | provenance survives free-form fiddling |
 | unknown tamper id throws | no silent no-ops in a demo about honesty |
 | unparseable JSON refuses with a message | a broken draft is a finding, not a crash |
+| a throwing verifier becomes a stop checkpoint | the crash the widget invites cannot kill the widget |
+| every button is type="button" | a host form never submits on a chip click |
+| key-order-only edits are not hand edits | provenance does not depend on JSON serialization |

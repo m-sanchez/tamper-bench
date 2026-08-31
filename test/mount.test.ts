@@ -64,3 +64,24 @@ test('unparseable hand edits refuse to run, with a message, not a crash', () => 
   assert.match(container.querySelector('.tb-status')?.textContent ?? '', /not valid JSON/);
   assert.equal(container.querySelector('.tb-outcome')?.textContent, '');
 });
+
+test('every button carries type="button" so a host form never submits', () => {
+  const { container } = setup();
+  const buttons = Array.from(container.querySelectorAll("button"));
+  assert.ok(buttons.length >= 3);
+  for (const b of buttons) assert.equal(b.getAttribute('type'), 'button');
+});
+
+test('reordering JSON keys in the editor is not recorded as a hand edit', () => {
+  const window2 = new Window();
+  const container2 = window2.document.createElement('div') as unknown as HTMLElement;
+  const mounted = mountBench(container2, {
+    baseline: { a: 1, b: 2 } as Record<string, number>,
+    verify: () => ({ checkpoints: [{ label: 'x', status: 'pass' as const }], outcome: 'clean' }),
+    tampers: []
+  });
+  const editor = container2.querySelector<HTMLTextAreaElement>('.tb-editor')!;
+  editor.value = JSON.stringify({ b: 2, a: 1 });
+  container2.querySelector<HTMLButtonElement>('.tb-run')!.click();
+  assert.deepEqual(mounted.bench.appliedTampers, [], 'key order alone is not an edit');
+});

@@ -31,16 +31,34 @@ export function mountBench<D>(
     const node = doc.createElement(tag);
     node.className = className;
     if (text != null) node.textContent = text;
+    // type="button" everywhere: embedded inside a host <form>, a default
+    // submit button would post the page on every chip click
+    if (node instanceof (doc.defaultView?.HTMLButtonElement ?? HTMLButtonElement)) {
+      node.setAttribute('type', 'button');
+    }
     return node;
+  };
+  // canonical form so a key-order-only edit in the textarea is not
+  // recorded as a hand edit; provenance should not depend on JSON key order
+  const canonical = (value: unknown): string => {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`)
+      .join(',')}}`;
   };
 
   const root = el('div', 'tb-root');
   if (opts.title) root.appendChild(el('h3', 'tb-title', opts.title));
 
   const chipRow = el('div', 'tb-chips');
+  chipRow.setAttribute('role', 'group');
+  chipRow.setAttribute('aria-label', 'tampers to apply');
   for (const t of config.tampers) {
     const chip = el('button', 'tb-chip', t.label);
     chip.setAttribute('data-tamper', t.id);
+    chip.setAttribute('aria-label', `apply tamper: ${t.label}`);
     if (t.note) chip.title = t.note;
     chip.addEventListener('click', () => {
       bench.tamper(t.id);
@@ -58,12 +76,14 @@ export function mountBench<D>(
 
   const editor = el('textarea', 'tb-editor');
   editor.rows = 10;
+  editor.setAttribute('aria-label', 'draft under test, editable JSON');
   root.appendChild(editor);
 
   const runButton = el('button', 'tb-run', 'run the verifier');
   root.appendChild(runButton);
 
   const status = el('div', 'tb-status');
+  status.setAttribute('role', 'status');
   const rail = el('ol', 'tb-rail');
   const outcome = el('p', 'tb-outcome');
   root.appendChild(status);
@@ -93,7 +113,7 @@ export function mountBench<D>(
   runButton.addEventListener('click', () => {
     try {
       const edited = JSON.parse(editor.value) as D;
-      if (JSON.stringify(edited) !== JSON.stringify(bench.draft)) bench.edit(edited);
+      if (canonical(edited) !== canonical(bench.draft)) bench.edit(edited);
     } catch {
       status.textContent = opts.parseErrorText ?? 'draft is not valid JSON; fix it or reset';
       return;
