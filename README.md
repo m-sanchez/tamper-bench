@@ -7,6 +7,8 @@
 [![CI](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
 
+> **In plain English:** this catches when a saved AI run was quietly edited or faked after the fact, so you can trust a result is the real one.
+
 Try to trick it: an embeddable guardrail playground. Visitors mutate a
 model draft; your deterministic verifier catches it, in their browser.
 
