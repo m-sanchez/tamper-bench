@@ -1,6 +1,9 @@
 {
-  "name": "tamper-bench",
-  "version": "1.1.0",
+  "name": "@m-sanchez/tamper-bench",
+  "version": "1.1.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Try to trick it: an embeddable guardrail playground. Visitors mutate a model draft; your deterministic verifier catches it, in their browser.",
   "type": "module",
   "main": "./dist/index.js",

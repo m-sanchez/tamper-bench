@@ -6,6 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/runtime_dependencies-0-B45309)
 [![CI](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/tamper-bench/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
+[![npm](https://img.shields.io/npm/v/@m-sanchez/tamper-bench?color=CB3837&logo=npm&logoColor=white)](https://www.npmjs.com/package/@m-sanchez/tamper-bench)
 
 > **In plain English:** this catches when a saved AI run was quietly edited or faked after the fact, so you can trust a result is the real one.
 
@@ -16,6 +17,9 @@ model draft; your deterministic verifier catches it, in their browser.
 [More tools](https://github.com/m-sanchez) ·
 [Working rules](https://miguelsanchez.co.uk/ethics)
 
+*Provenance: this came out of one body of production LLM work, extracted and
+generalised into a standalone package. First published 2026-08-31.*
+
 The most convincing page about a guardrail is the one where the reader
 fails to get past it. tamper-bench is that page as a widget: you bring a
 draft, a verifier, and a set of named tampers; it renders the chips, the
@@ -24,7 +28,7 @@ in the visitor's browser; the widget makes no network calls, so whatever
 it proves, it proves in front of them.
 
 ```ts
-import { mountBench } from 'tamper-bench';
+import { mountBench } from '@m-sanchez/tamper-bench';
 
 mountBench(document.querySelector('#bench'), {
   baseline: { scope: 'acct-1', count: 7 },
@@ -67,13 +71,14 @@ directly; any deterministic function of the draft does.
 ## Install
 
 ```bash
-npm install github:m-sanchez/tamper-bench#v1.1.0
+npm install @m-sanchez/tamper-bench
 ```
 
-Not yet on npm; the pinned git tag is the supported install and CI proves
-the packed tarball imports cleanly. The install builds plain ESM into
-`dist/`, so any bundler (or a `<script type="module">` after copying
-`dist/`) can serve it; zero runtime dependencies.
+Also installable from a pinned git tag:
+`github:m-sanchez/tamper-bench#v1.1.1`. CI proves the packed tarball imports
+cleanly. The install builds plain ESM into `dist/`, so any bundler (or a
+`<script type="module">` after copying `dist/`) can serve it; zero runtime
+dependencies.
 
 ## Develop
 
